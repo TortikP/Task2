@@ -13,30 +13,35 @@ namespace Task2
 
         const int numThreads = 26;
 
+        const int dataReadTime = 100; //Условное время на чтение
+
+        const int dataWriteTime = 100; //Условное время на запись
+
         static void Main(string[] args)
         {
             Random rnd = new Random();
-            Thread[] t = new Thread[numThreads];
+            Thread[] thread = new Thread[numThreads];
             Parallel.For(0,numThreads, i => {
                 if (i % 2 == 0)
                 {
-                    t[i] = new Thread(() => WriteMany(10, 50));
+                    thread[i] = new Thread(() => WriteMany(10, 1));
                 }
                 else
                 {
-                    t[i] = new Thread(() => ReadMany(50));
+                    thread[i] = new Thread(() => ReadMany(3));
                 }
-                t[i].Name = new String((char)(i + 65), 1);
-                t[i].Start();
+                thread[i].Name = new String((char)(i + 65), 1);
+                thread[i].Start();
             });
             
 
             for (int i = 0; i < numThreads; i++)
-                t[i].Join();
+                thread[i].Join();
 
             Console.ReadLine();
         }
 
+        //Прочитать данные несколько раз
         static void ReadMany(int amount)
         {
             for (int i = 0; i < amount; i++)
@@ -45,6 +50,7 @@ namespace Task2
             }
         }
 
+        //Записать данные несколько раз
         static void WriteMany(int value, int amount)
         {
             for (int i = 0; i < amount; i++)
@@ -60,6 +66,7 @@ namespace Task2
             {
                 // It is safe for this thread to read from the shared resource.
                 Display("Читатель считал " + count);
+                Thread.Sleep(dataReadTime);
                 return count;
             }
             finally
@@ -77,6 +84,7 @@ namespace Task2
                 // It's safe for this thread to access from the shared resource.
                 count += value;
                 Display("Писатель добавил " + count);
+                Thread.Sleep(dataWriteTime);
             }
             finally
             {
